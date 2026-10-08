@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOEIC 30-Word Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt:#1E362F;
+    --felt-dark:#152722;
+    --card:#F4EEDD;
+    --ink:#20261F;
+    --ink-soft:#5B5A4C;
+    --mustard:#C7902F;
+    --rust:#A6472B;
+    --green-ok:#4C7A5B;
+    --line:#D8CFB2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--felt);
+    color:var(--card);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 56px;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--mustard);
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(24px,4vw,34px);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:13px;
+    color:#B9C4BB;
+    margin-bottom:26px;
+    text-align:center;
+    max-width:480px;
+  }
+
+  .sheet-wrap{
+    position:relative;
+    width:min(94vw,560px);
+  }
+  .clip{
+    position:absolute;
+    top:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    width:70px;
+    height:34px;
+    background:linear-gradient(180deg,#8a8368,#65604c);
+    border-radius:6px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.4);
+    z-index:5;
+  }
+  .clip::after{
+    content:"";
+    position:absolute;
+    top:14px; left:10px; right:10px;
+    height:8px;
+    background:rgba(0,0,0,0.25);
+    border-radius:3px;
+  }
+
+  .sheet{
+    position:relative;
+    background:var(--card);
+    border-radius:6px 6px 10px 10px;
+    box-shadow:0 20px 40px -12px rgba(0,0,0,0.5);
+    padding:34px 26px 26px;
+    min-height:360px;
+    background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(90,85,60,0.06) 28px);
+  }
+
+  .section-tab{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#F4EEDD;
+    background:var(--rust);
+    padding:4px 10px;
+    border-radius:3px;
+    margin-bottom:14px;
+  }
+  .section-tab.def{background:var(--mustard); color:#241C08;}
+  .section-tab.sent{background:var(--green-ok);}
+
+  .word-bank{
+    background:rgba(90,85,60,0.08);
+    border:1px dashed var(--line);
+    border-radius:6px;
+    padding:8px 12px;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin-bottom:16px;
+  }
+  .word-bank b{color:var(--rust); text-transform:uppercase; letter-spacing:0.04em;}
+
+  .passage{
+    background:rgba(90,85,60,0.08);
+    border-left:3px solid var(--mustard);
+    padding:12px 16px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--ink);
+    margin-bottom:18px;
+    border-radius:0 4px 4px 0;
+  }
+  .passage .blank{
+    display:inline-block;
+    min-width:70px;
+    text-align:center;
+    border-bottom:2px solid var(--rust);
+    color:var(--rust);
+    font-weight:700;
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+  }
+  .passage-title{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+
+  .prompt{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:18px;
+    color:var(--ink);
+    line-height:1.4;
+    margin-bottom:20px;
+  }
+  .prompt em{color:var(--rust); font-style:normal;}
+
+  .choice{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .choice:hover{border-color:var(--mustard);}
+  .choice .bubble{
+    flex:0 0 24px;
+    height:24px;
+    border-radius:50%;
+    border:1.5px solid var(--ink-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .choice.correct{border-color:var(--green-ok); background:#eef6f0;}
+  .choice.correct .bubble{background:var(--green-ok); border-color:var(--green-ok); color:#fff;}
+  .choice.wrong{border-color:var(--rust); background:#fbeeea;}
+  .choice.wrong .bubble{background:var(--rust); border-color:var(--rust); color:#fff;}
+  .choice.disabled{cursor:default;}
+
+  .feedback{
+    font-size:13px;
+    margin-top:6px;
+    margin-bottom:8px;
+    min-height:18px;
+    font-weight:600;
+  }
+  .feedback.right{color:var(--green-ok);}
+  .feedback.miss{color:var(--rust);}
+
+  .explain-box{
+    display:none;
+    background:rgba(199,144,47,0.1);
+    border-left:3px solid var(--mustard);
+    border-radius:0 4px 4px 0;
+    padding:10px 14px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+
+  .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:8px;
+  }
+  button.next{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:10px 20px;
+    background:var(--felt);
+    color:var(--card);
+    opacity:0.4;
+    pointer-events:none;
+    transition:opacity 0.15s ease, transform 0.15s ease;
+  }
+  button.next.active{opacity:1; pointer-events:all;}
+  button.next:active{transform:scale(0.95);}
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:min(94vw,560px);
+    margin-top:20px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:#B9C4BB;
+  }
+  .progress-track{
+    flex:1;
+    height:4px;
+    background:rgba(244,238,221,0.15);
+    border-radius:4px;
+    margin:0 12px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--mustard);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+
+  .results{
+    text-align:center;
+    padding:20px 10px;
+  }
+  .results .score{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:52px;
+    color:var(--ink);
+    margin:10px 0 4px;
+  }
+  .results .score span{font-size:22px; color:var(--ink-soft);}
+  .breakdown{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin:20px 0 10px;
+    flex-wrap:wrap;
+  }
+  .breakdown div{
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .breakdown b{display:block; font-size:20px; color:var(--ink); font-family:'Fraunces',serif;}
+  .restart-btn{
+    margin-top:18px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    border:none;
+    cursor:pointer;
+    border-radius:999px;
+    padding:11px 22px;
+    background:var(--mustard);
+    color:#241C08;
+  }
+
+  .review-header{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--ink);
+    margin:28px 0 4px;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+  .review-sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+  }
+  .review-item{
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    border-left:4px solid var(--green-ok);
+    background:#eef6f0;
+  }
+  .review-item.bad{
+    border-left-color:var(--rust);
+    background:#fbeeea;
+  }
+  .review-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .review-num{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+  }
+  .review-status{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    font-weight:700;
+    color:var(--green-ok);
+  }
+  .review-item.bad .review-status{color:var(--rust);}
+  .review-prompt{
+    font-size:13px;
+    color:var(--ink);
+    font-weight:600;
+    margin-bottom:6px;
+    line-height:1.4;
+  }
+  .review-answers{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .review-answers b{color:var(--ink);}
+  .review-explain{
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.45;
+    margin-bottom:4px;
+  }
+  .review-note{
+    font-size:11.5px;
+    color:var(--rust);
+    line-height:1.45;
+    font-style:italic;
+    border-top:1px dashed rgba(166,71,43,0.3);
+    padding-top:6px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">Vocabulary Quiz · 30 Questions · Same 30 Words</div>
+  <h1>Challenge Deck Quiz</h1>
+  <div class="sub">Reading comprehension, definitions, and sentence completion — every question and every answer choice is drawn from the same 30 flashcard words.</div>
+
+  <div class="sheet-wrap">
+    <div class="clip"></div>
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <div class="meta-row" id="metaRow">
+    <span id="countLabel">1 / 30</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span id="scoreLabel">score: 0</span>
+  </div>
+
+<script>
+/* ---------- WORD BANK (definitions + examples, for explanations) ---------- */
+const BANK = {
+"bankrupt": "unable to pay debts; financially ruined",
+"merger": "the joining of two companies into one",
+"audit": "an official examination of financial records",
+"inventory": "the stock of goods a business has on hand",
+"itemize": "to list things individually, one by one",
+"itinerary": "a detailed plan or route for a journey",
+"mortgage": "a loan used to buy property, repaid over time",
+"tenant": "a person who rents property from a landlord",
+"renovation": "the process of repairing or improving a building",
+"downsize": "to reduce the size of a company, often by cutting jobs",
+"downturn": "a decline in economic activity",
+"slump": "a sudden and significant decline",
+"dividend": "a payment made by a company to its shareholders",
+"vacancy": "an unfilled job or empty space",
+"wholesale": "selling goods in large quantities at lower prices",
+"spectator": "a person who watches an event",
+"premises": "a building and its land, especially for business",
+"grievance": "a formal complaint about unfair treatment",
+"compensate": "to pay someone for a loss or make up for something",
+"takeover": "the act of gaining control of a company",
+"recruitment": "the process of hiring new people",
+"credentials": "qualifications that prove someone is suited for a role",
+"probationary": "relating to a trial period for a new employee",
+"supervision": "the act of overseeing and directing work",
+"suspicious": "feeling that something may be wrong or dishonest",
+"scrutinize": "to examine something very closely",
+"forecast": "a prediction about the future",
+"fluctuate": "to change often, especially rising and falling",
+"jeopardize": "to put something at risk of harm or loss",
+"triumph": "a great victory or success"
+};
+const WORD_LIST = Object.keys(BANK);
+
+const NOTES = {
+"bankrupt": "Bankrupt describes a company or person, not an event. It's sometimes confused with \u201cdownturn\u201d (an economy-wide decline) or \u201cslump\u201d (a temporary drop in sales) \u2014 bankrupt specifically means unable to pay debts.",
+"merger": "Easy to mix up with \u201ctakeover\u201d: a merger is a mutual joining of two companies as near-equals, while a takeover is one company gaining control of another, sometimes against its will.",
+"audit": "Often confused with \u201cscrutinize\u201d since both involve careful examination \u2014 but audit specifically means a formal, official review of financial records, not just close attention in general.",
+"inventory": "Inventory is the actual stock of goods a business holds. It's related to \u201cwholesale\u201d (which describes how goods are sold, in bulk at lower prices) but they aren't the same concept.",
+"itemize": "Means to list things one by one. Sometimes confused with \u201caudit,\u201d but an audit is a broader financial review \u2014 itemizing is just the act of listing individual items.",
+"itinerary": "A travel-specific word for a planned route or schedule. Easy to confuse with \u201cpremises\u201d since both can relate to a physical place, but itinerary is about a plan, not a location.",
+"mortgage": "Refers specifically to a loan used to buy property. Sometimes confused with \u201cdividend\u201d since both involve money changing hands \u2014 but a mortgage is money borrowed, a dividend is money paid out from profit.",
+"tenant": "The person renting property. Occasionally confused with \u201cspectator\u201d in this quiz simply because both fit \u201ca person who ___\u201d \u2014 always check the full sentence for context.",
+"renovation": "Refers to fixing or upgrading a physical building. Sometimes confused with \u201crecruitment,\u201d which is about hiring people, not renovating buildings.",
+"downsize": "Means reducing a company's size, often through layoffs. Sometimes confused with \u201ccompensate\u201d or \u201cscrutinize\u201d since all three can appear in workplace contexts, but downsize specifically means cutting staff or scale.",
+"downturn": "Describes a broad decline in economic activity. Easy to confuse with \u201cslump,\u201d which usually refers to one company or sector's own sudden decline rather than the whole economy.",
+"slump": "A sudden, specific decline (like a drop in sales). Often mixed up with \u201cdownturn,\u201d which usually describes the broader economy rather than a single company.",
+"dividend": "A payment made to shareholders. Sometimes confused with \u201ccompensate\u201d (paying someone back for a loss) \u2014 but a dividend is a reward from profits, not a correction for a problem.",
+"vacancy": "Means an empty job or space. Sometimes confused with \u201cinventory\u201d or \u201cpremises\u201d because all three can describe something \u201cavailable,\u201d but vacancy specifically means unfilled or empty.",
+"wholesale": "Describes selling in bulk at lower prices. Easy to confuse with \u201cinventory\u201d (the stock itself) since both appear in supply-chain contexts.",
+"spectator": "Someone watching an event. Occasionally confused with \u201ctenant\u201d in this quiz simply because both are \u201ca person who ___\u201d \u2014 read the full sentence carefully.",
+"premises": "A building and its land. Sometimes confused with \u201cinventory\u201d (the goods inside a building) since both relate to a business location.",
+"grievance": "A formal complaint. Sometimes confused with \u201cforecast\u201d or \u201ccredentials\u201d in this quiz simply because all three are common office vocabulary \u2014 context is the key clue.",
+"compensate": "Means to pay someone back for a loss. Often confused with \u201cjeopardize\u201d or \u201cscrutinize\u201d because all three can appear in workplace situations, but compensate is specifically about making up for harm.",
+"takeover": "One company gaining control of another. Easy to confuse with \u201cmerger,\u201d but a merger is more mutual, while a takeover can be one-sided or even hostile.",
+"recruitment": "The process of hiring. Sometimes confused with \u201crenovation\u201d or \u201cinventory\u201d simply because they're all business nouns \u2014 watch for the human-resources context.",
+"credentials": "Qualifications that prove someone is suited for a role. Sometimes confused with \u201citinerary\u201d or \u201cpremises\u201d purely as similar-sounding distractors \u2014 credentials specifically means proof of ability.",
+"probationary": "Describes a trial period for a new employee. Sometimes confused with unrelated nouns like \u201cwholesale\u201d or \u201ctriumph\u201d as distractors \u2014 check that the sentence is about employment status.",
+"supervision": "Means overseeing work. Sometimes confused with \u201cinventory\u201d or \u201cpremises\u201d as distractor nouns \u2014 supervision is specifically about people managing others' work.",
+"suspicious": "Means feeling something may be wrong. Easy to confuse with \u201cjeopardize\u201d (to put something at risk) since both suggest a problem, but suspicious describes a feeling, not an action that causes harm.",
+"scrutinize": "Means to examine something closely. Often confused with \u201caudit,\u201d but an audit is a formal financial review, while scrutinize can apply to examining anything closely.",
+"forecast": "A prediction about the future. Sometimes confused with \u201cfluctuate\u201d since both relate to change, but a forecast predicts what will happen, while fluctuate describes change that's already happening.",
+"fluctuate": "Means to change often, rising and falling. Easy to confuse with \u201cforecast,\u201d but forecast is a prediction, while fluctuate describes an ongoing pattern of change.",
+"jeopardize": "Means to put something at risk. Often confused with \u201csuspicious\u201d since both appear in negative situations, but jeopardize is an action that endangers something, while suspicious is a feeling of doubt.",
+"triumph": "Means a great victory or success. Sometimes confused with \u201ctakeover\u201d in this quiz simply because both can describe a big business event, but triumph specifically means a positive, celebrated success."
+};
+
+/* ---------- QUESTIONS ---------- */
+
+const PASSAGES = [
+{
+  title:"Passage 1 · A Company in Trouble",
+  template:`After two years of steady growth, a national retailer suddenly hit hard times. Economists pointed to a broader economic {1} that had reduced consumer spending across the region, and the company's own sales soon fell into a deep {2}. To survive, management decided to {3} several departments, cutting dozens of jobs. Analysts released a gloomy {4}, warning that the company might soon go {5} if conditions didn't improve.`,
+  qs:[
+    {n:1, prompt:"Which word completes blank (1)?", choices:["downturn","merger","dividend","triumph"], answer:"downturn"},
+    {n:2, prompt:"Which word completes blank (2)?", choices:["slump","vacancy","itinerary","audit"], answer:"slump"},
+    {n:3, prompt:"Which word completes blank (3)?", choices:["downsize","compensate","itemize","scrutinize"], answer:"downsize"},
+    {n:4, prompt:"Which word completes blank (4)?", choices:["forecast","grievance","credentials","premises"], answer:"forecast"},
+    {n:5, prompt:"Which word completes blank (5)?", choices:["bankrupt","tenant","wholesale","spectator"], answer:"bankrupt"}
+  ]
+},
+{
+  title:"Passage 2 · A Hire Gone Wrong",
+  template:`The company's {1} team had been trying to fill the position for weeks. One candidate stood out immediately — her {2} were impressive, with degrees and certificates from well-known institutions. She was hired for a three-month {3} period before becoming permanent. But within days, her manager grew {4} of some of the numbers in her reports. Auditors were asked to {5} her work closely, and the mismatched figures were soon discovered.`,
+  qs:[
+    {n:1, prompt:"Which word completes blank (1)?", choices:["recruitment","renovation","inventory","mortgage"], answer:"recruitment"},
+    {n:2, prompt:"Which word completes blank (2)?", choices:["credentials","itinerary","dividend","premises"], answer:"credentials"},
+    {n:3, prompt:"Which word completes blank (3)?", choices:["probationary","wholesale","triumph","grievance"], answer:"probationary"},
+    {n:4, prompt:"Which word completes blank (4)?", choices:["suspicious","compensate","jeopardize","fluctuate"], answer:"suspicious"},
+    {n:5, prompt:"Which word completes blank (5)?", choices:["scrutinize","itemize","compensate","jeopardize"], answer:"scrutinize"}
+  ]
+}
+];
+
+const DEFQ = [
+{prompt:"Which word means \u201cthe joining of two companies into one\u201d?", choices:["merger","takeover","recruitment","premises"], answer:"merger"},
+{prompt:"Which word means \u201can official examination of financial records\u201d?", choices:["audit","itemize","forecast","scrutinize"], answer:"audit"},
+{prompt:"Which word means \u201cthe stock of goods a business has on hand\u201d?", choices:["inventory","wholesale","dividend","premises"], answer:"inventory"},
+{prompt:"Which word means \u201cto list things individually, one by one\u201d?", choices:["itemize","itinerary","forecast","audit"], answer:"itemize"},
+{prompt:"Which word means \u201ca detailed plan or route for a journey\u201d?", choices:["itinerary","itemize","premises","vacancy"], answer:"itinerary"},
+{prompt:"Which word means \u201ca loan used to buy property, repaid over time\u201d?", choices:["mortgage","dividend","compensate","grievance"], answer:"mortgage"},
+{prompt:"Which word means \u201ca person who rents property from a landlord\u201d?", choices:["tenant","spectator","credentials","supervision"], answer:"tenant"},
+{prompt:"Which word means \u201cthe process of repairing or improving a building\u201d?", choices:["renovation","recruitment","probationary","takeover"], answer:"renovation"},
+{prompt:"Which word means \u201ca payment made by a company to its shareholders\u201d?", choices:["dividend","compensate","wholesale","mortgage"], answer:"dividend"},
+{prompt:"Which word means \u201can unfilled job or empty space\u201d?", choices:["vacancy","tenant","premises","inventory"], answer:"vacancy"}
+];
+
+const SENTQ = [
+{prompt:"They buy office supplies at ___ prices.", choices:["wholesale","mortgage","dividend","vacancy"], answer:"wholesale"},
+{prompt:"Thousands of ___ attended the opening ceremony.", choices:["spectators","tenants","grievances","dividends"], answer:"spectators"},
+{prompt:"Smoking is not allowed on the ___.", choices:["premises","inventory","itinerary","vacancy"], answer:"premises"},
+{prompt:"He filed a ___ with the human resources office.", choices:["grievance","forecast","itinerary","credentials"], answer:"grievance"},
+{prompt:"The airline agreed to ___ passengers for the delay.", choices:["compensate","itemize","jeopardize","scrutinize"], answer:"compensate"},
+{prompt:"The hostile ___ surprised the entire industry.", choices:["takeover","merger","renovation","recruitment"], answer:"takeover"},
+{prompt:"New employees work under close ___.", choices:["supervision","inventory","premises","credentials"], answer:"supervision"},
+{prompt:"Fuel prices tend to ___ throughout the year.", choices:["fluctuate","jeopardize","compensate","scrutinize"], answer:"fluctuate"},
+{prompt:"Missing the deadline could ___ the entire contract.", choices:["jeopardize","fluctuate","compensate","itemize"], answer:"jeopardize"},
+{prompt:"Winning the contract was a ___ for the small firm.", choices:["triumph","takeover","merger","forecast"], answer:"triumph"}
+];
+
+/* ---------- BUILD ---------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function explainFor(word){
+  const base = word.endsWith('s') && !BANK[word] ? word.slice(0,-1) : word;
+  const key = BANK[word] ? word : (BANK[base] ? base : null);
+  if(!key) return "";
+  return `"${key}" means: ${BANK[key]}.`;
+}
+
+let queue = [];
+
+PASSAGES.forEach(p=>{
+  p.qs.forEach(q=>{
+    queue.push({section:"reading", passage:p, activeBlank:q.n, prompt:q.prompt, choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)});
+  });
+});
+DEFQ.forEach(q=>{
+  queue.push({section:"definition", prompt:q.prompt, choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)});
+});
+SENTQ.forEach(q=>{
+  queue.push({section:"sentence", prompt:q.prompt.replace("___","<em>_____</em>"), choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)});
+});
+
+const TOTAL = queue.length;
+let idx = 0;
+let score = 0;
+let answered = false;
+let reviewLog = [];
+const sectionScore = {reading:{c:0,t:0}, definition:{c:0,t:0}, sentence:{c:0,t:0}};
+queue.forEach(q=>sectionScore[q.section].t++);
+
+const sheet = document.getElementById('sheet');
+const countLabel = document.getElementById('countLabel');
+const scoreLabel = document.getElementById('scoreLabel');
+const progressFill = document.getElementById('progressFill');
+
+const SECTION_LABEL = {reading:"Reading Comprehension", definition:"Definition Match", sentence:"Sentence Completion"};
+const SECTION_CLASS = {reading:"", definition:"def", sentence:"sent"};
+
+function renderPassageText(p, activeBlank){
+  let html = p.template;
+  for(let i=1;i<=5;i++){
+    const marker = `{${i}}`;
+    if(i === activeBlank){
+      html = html.replace(marker, `<span class="blank">(${i}) ____</span>`);
+    } else {
+      html = html.replace(marker, `<span class="blank" style="border-bottom:2px dotted var(--ink-soft); color:var(--ink-soft);">(${i})</span>`);
+    }
+  }
+  return html;
+}
+
+function render(){
+  const q = queue[idx];
+  answered = false;
+  countLabel.textContent = (idx+1) + " / " + TOTAL;
+  scoreLabel.textContent = "score: " + score;
+  progressFill.style.width = (idx/(TOTAL-1||1))*100 + "%";
+
+  let html = `<div class="section-tab ${SECTION_CLASS[q.section]}">${SECTION_LABEL[q.section]}</div>`;
+
+  if(q.section === "reading"){
+    html += `<div class="passage-title">${q.passage.title}</div>`;
+    html += `<div class="passage">${renderPassageText(q.passage, q.activeBlank)}</div>`;
+  }
+  if(q.section === "definition" || q.section === "sentence"){
+    html += `<div class="word-bank"><b>Word bank</b> — ${WORD_LIST.join(", ")}</div>`;
+  }
+
+  html += `<div class="prompt">${q.prompt}</div>`;
+  html += `<div class="choices">`;
+  q.choices.forEach((c,i)=>{
+    const letter = String.fromCharCode(65+i);
+    html += `<button class="choice" data-choice="${encodeURIComponent(c)}"><span class="bubble">${letter}</span><span>${c}</span></button>`;
+  });
+  html += `</div>`;
+  html += `<div class="feedback" id="feedback"></div>`;
+  html += `<div class="explain-box" id="explainBox"></div>`;
+  html += `<div class="footer-row"><span></span><button class="next" id="nextBtn">${idx===TOTAL-1?'See results':'Next'}</button></div>`;
+
+  sheet.innerHTML = html;
+
+  sheet.querySelectorAll('.choice').forEach(btn=>{
+    btn.addEventListener('click', onChoose);
+  });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    if(idx < TOTAL-1){ idx++; render(); }
+    else { showResults(); }
+  });
+}
+
+function onChoose(e){
+  if(answered) return;
+  answered = true;
+  const btn = e.currentTarget;
+  const chosen = decodeURIComponent(btn.dataset.choice);
+  const q = queue[idx];
+  const correct = chosen === q.answer;
+  if(correct){
+    score++;
+    sectionScore[q.section].c++;
+  }
+  sheet.querySelectorAll('.choice').forEach(b=>{
+    b.classList.add('disabled');
+    const val = decodeURIComponent(b.dataset.choice);
+    if(val === q.answer) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback');
+  fb.textContent = correct ? "Correct!" : `Not quite — the answer is "${q.answer}."`;
+  fb.className = "feedback " + (correct ? "right" : "miss");
+  const eb = document.getElementById('explainBox');
+  if(q.explain){
+    eb.textContent = q.explain;
+    eb.style.display = "block";
+  }
+  scoreLabel.textContent = "score: " + score;
+  document.getElementById('nextBtn').classList.add('active');
+
+  reviewLog.push({
+    section: q.section,
+    prompt: q.section === "reading" ? `${q.passage.title} — ${q.prompt}` : q.prompt,
+    chosen: chosen,
+    answer: q.answer,
+    correct: correct,
+    explain: q.explain,
+    note: NOTES[q.answer] || ""
+  });
+}
+
+function showResults(){
+  const pct = Math.round((score/TOTAL)*100);
+  let html = `<div class="results">
+    <div class="passage-title">Quiz complete</div>
+    <div class="score">${score}<span>/${TOTAL}</span></div>
+    <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--ink-soft);">${pct}% correct</div>
+    <div class="breakdown">
+      <div><b>${sectionScore.reading.c}/${sectionScore.reading.t}</b>Reading</div>
+      <div><b>${sectionScore.definition.c}/${sectionScore.definition.t}</b>Definitions</div>
+      <div><b>${sectionScore.sentence.c}/${sectionScore.sentence.t}</b>Sentences</div>
+    </div>
+    <button class="restart-btn" id="restartBtn">Retake quiz</button>
+  </div>`;
+
+  html += `<div class="review-header">Answer Review</div>`;
+  html += `<div class="review-sub">Every question, why the correct answer is right, and why the wrong choices trip people up.</div>`;
+  reviewLog.forEach((r, i)=>{
+    html += `<div class="review-item ${r.correct ? 'ok' : 'bad'}">
+      <div class="review-top">
+        <span class="review-num">${i+1}</span>
+        <span class="review-status">${r.correct ? '✓ Correct' : '✗ Missed'}</span>
+      </div>
+      <div class="review-prompt">${r.prompt}</div>
+      <div class="review-answers">
+        <span>Your answer: <b>${r.chosen}</b></span>
+        ${r.correct ? '' : `<span>Correct answer: <b>${r.answer}</b></span>`}
+      </div>
+      <div class="review-explain">${r.explain}</div>
+      ${r.note ? `<div class="review-note">${r.note}</div>` : ''}
+    </div>`;
+  });
+
+  sheet.innerHTML = html;
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    queue = [];
+    PASSAGES.forEach(p=>{ p.qs.forEach(q=>{ queue.push({section:"reading", passage:p, activeBlank:q.n, prompt:q.prompt, choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)}); }); });
+    DEFQ.forEach(q=>{ queue.push({section:"definition", prompt:q.prompt, choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)}); });
+    SENTQ.forEach(q=>{ queue.push({section:"sentence", prompt:q.prompt.replace("___","<em>_____</em>"), choices:shuffle(q.choices), answer:q.answer, explain:explainFor(q.answer)}); });
+    queue = shuffle(queue);
+    idx = 0; score = 0;
+    reviewLog = [];
+    sectionScore.reading.c=0; sectionScore.definition.c=0; sectionScore.sentence.c=0;
+    render();
+  });
+}
+
+render();
+</script>
+</body>
+</html>
